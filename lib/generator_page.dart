@@ -17,10 +17,15 @@ class GeneratorPage extends StatefulWidget {
 class _GeneratorPageState extends State<GeneratorPage>
     with SingleTickerProviderStateMixin {
   String _selectedType = 'URL';
-  final List<String> _qrTypes = ['URL', 'Plain Text'];
+  final List<String> _qrTypes = ['URL', 'Plain Text', 'WiFi'];
 
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
+  final TextEditingController _wifiSSIDController = TextEditingController();
+  final TextEditingController _wifiPasswordController = TextEditingController();
+
+  String _wifiEncryption = 'WPA';
+  bool _isHiddenNetwork = false;
 
   String _qrData = '';
   final GlobalKey _qrKey = GlobalKey();
@@ -33,7 +38,6 @@ class _GeneratorPageState extends State<GeneratorPage>
   void initState() {
     super.initState();
 
-    // ✅ FIX: Initialize animations FIRST before using them
     _qrAnimationController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
@@ -42,7 +46,6 @@ class _GeneratorPageState extends State<GeneratorPage>
       CurvedAnimation(parent: _qrAnimationController, curve: Curves.easeInOut),
     );
 
-    // ✅ THEN call _generateQR (which uses the animation controller)
     _generateQR();
   }
 
@@ -50,12 +53,13 @@ class _GeneratorPageState extends State<GeneratorPage>
   void dispose() {
     _urlController.dispose();
     _textController.dispose();
+    _wifiSSIDController.dispose();
+    _wifiPasswordController.dispose();
     _qrAnimationController.dispose();
     super.dispose();
   }
 
   void _generateQR() {
-    // ✅ Safe reset: only if controller is ready
     if (_qrAnimationController.isAnimating || _qrAnimationController.value == 1) {
       _qrAnimationController.reset();
     }
@@ -71,10 +75,19 @@ class _GeneratorPageState extends State<GeneratorPage>
         } else {
           _qrData = '';
         }
-      } else {
+      } else if (_selectedType == 'Plain Text') {
         _qrData = _textController.text.isEmpty
             ? 'Enter some text to generate QR'
             : _textController.text;
+      } else if (_selectedType == 'WiFi') {
+        String ssid = _wifiSSIDController.text.trim();
+        String password = _wifiPasswordController.text.trim();
+
+        if (ssid.isNotEmpty) {
+          _qrData = 'WIFI:T:$_wifiEncryption;S:$ssid;P:$password;H:$_isHiddenNetwork;;';
+        } else {
+          _qrData = '';
+        }
       }
     });
 
@@ -165,8 +178,6 @@ class _GeneratorPageState extends State<GeneratorPage>
   }
 
   Widget _buildInputFields() {
-    final isURL = _selectedType == 'URL';
-
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       transitionBuilder: (child, animation) {
@@ -178,7 +189,7 @@ class _GeneratorPageState extends State<GeneratorPage>
           child: FadeTransition(opacity: animation, child: child),
         );
       },
-      child: isURL
+      child: _selectedType == 'URL'
           ? Column(
         key: const ValueKey('url-input'),
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +204,8 @@ class _GeneratorPageState extends State<GeneratorPage>
           ),
         ],
       )
-          : _buildModernTextField(
+          : _selectedType == 'Plain Text'
+          ? _buildModernTextField(
         key: const ValueKey('text-input'),
         controller: _textController,
         label: 'Enter Text',
@@ -203,7 +215,110 @@ class _GeneratorPageState extends State<GeneratorPage>
         maxLines: 4,
         alignLabelWithHint: true,
         onChanged: (_) => _generateQR(),
-      ),
+      )
+          : _buildWiFiInputFields(),
+    );
+  }
+
+  Widget _buildWiFiInputFields() {
+    return Column(
+      key: const ValueKey('wifi-input'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // SSID Field
+        _buildModernTextField(
+          controller: _wifiSSIDController,
+          label: 'Network Name (SSID)',
+          hint: 'Enter WiFi name',
+          icon: Icons.wifi_rounded,
+          keyboardType: TextInputType.text,
+          onChanged: (_) => _generateQR(),
+        ),
+        const SizedBox(height: 12),
+
+        // Password Field
+        _buildModernTextField(
+          controller: _wifiPasswordController,
+          label: 'Password',
+          hint: 'Enter WiFi password',
+          icon: Icons.lock_rounded,
+          keyboardType: TextInputType.visiblePassword,
+          onChanged: (_) => _generateQR(),
+          obscureText: true,
+        ),
+        const SizedBox(height: 12),
+
+        // Encryption Type Dropdown
+        Row(
+          children: [
+            Icon(Icons.security_rounded, color: Colors.white, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                value: _wifiEncryption,
+                dropdownColor: const Color(0xFF1a1a2e),
+                decoration: InputDecoration(
+                  labelText: 'Encryption',
+                  labelStyle: const TextStyle(color: Colors.white, fontSize: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: Colors.teal, width: 2),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.1),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                ),
+                items: ['WPA', 'WEP', 'nopass']
+                    .map((type) => DropdownMenuItem(
+                  value: type,
+                  child: Text(
+                    type == 'nopass' ? 'None (Open)' : type,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _wifiEncryption = value;
+                      _generateQR();
+                    });
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // Hidden Network Toggle
+        Row(
+          children: [
+            Icon(Icons.visibility_off_rounded, color: Colors.white, size: 20),
+            const SizedBox(width: 10),
+            const Text('Hidden Network', style: TextStyle(color: Colors.white, fontSize: 14)),
+            const Spacer(),
+            Switch(
+              value: _isHiddenNetwork,
+              activeColor: Colors.teal,
+              onChanged: (value) {
+                setState(() {
+                  _isHiddenNetwork = value;
+                  _generateQR();
+                });
+              },
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -217,12 +332,14 @@ class _GeneratorPageState extends State<GeneratorPage>
     int? maxLines = 1,
     bool alignLabelWithHint = false,
     required ValueChanged<String> onChanged,
+    bool obscureText = false,
   }) {
     return TextField(
       key: key,
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
+      obscureText: obscureText,
       style: const TextStyle(color: Colors.white, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
@@ -242,7 +359,7 @@ class _GeneratorPageState extends State<GeneratorPage>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.teal, width: 2),
+          borderSide: const BorderSide(color: Colors.teal, width: 2),
         ),
         filled: true,
         fillColor: Colors.white.withOpacity(0.1),
@@ -390,8 +507,6 @@ class _GeneratorPageState extends State<GeneratorPage>
                       ),
                     ],
                   ),
-
-                  // ✅ CHANGED: Removed the info box Container with "Scanning this QR..." text
 
                   const SizedBox(height: 15),
                 ],

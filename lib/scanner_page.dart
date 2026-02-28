@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// ✨ Responsive Helper for ScannerPage
+//Responsive Helper
 class _ScannerResponsive {
   static double getWidth(BuildContext context) => MediaQuery.of(context).size.width;
   static double getHeight(BuildContext context) => MediaQuery.of(context).size.height;
@@ -64,7 +64,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     final isMobile = _ScannerResponsive.isMobile(context);
 
     return Scaffold(
-      // ✅ Full Screen Background Fix #1: Transparent scaffold
+      // Background - Transparent scaffold
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
 
@@ -92,10 +92,10 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
         ),
       ),
 
-      // ✅ Full Screen Background Fix #2: Stack with gradient as base layer
+      // Background - Stack with gradient as base layer
       body: Stack(
         children: [
-          // 🎨 Full Screen Gradient Background
+          //Gradient Background
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -108,7 +108,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
             ),
           ),
 
-          // 📱 Main Content with SafeArea
+          // Main Content with SafeArea
           SafeArea(
             child: _isScanning
                 ? _buildScannerView(context)
@@ -119,7 +119,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     );
   }
 
-  // 🔹 Responsive Camera View
+  // Responsive Camera View
   Widget _buildScannerView(BuildContext context) {
     final isMobile = _ScannerResponsive.isMobile(context);
     final frameSize = _ScannerResponsive.getQrFrameSize(context);
@@ -147,7 +147,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
               },
             ),
 
-            // ✨ Dark Overlay with Cutout (Responsive)
+            // Dark Overlay with Cutout
             Positioned.fill(
               child: CustomPaint(
                 painter: ScannerOverlayPainter(
@@ -157,7 +157,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
               ),
             ),
 
-            // ✨ Animated Scanner Frame (Responsive Size)
+            // Animated Scanner Frame
             Positioned.fill(
               child: Center(
                 child: ScaleTransition(
@@ -202,7 +202,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
               ),
             ),
 
-            // ✨ Instruction Text (Responsive Position & Size)
+            // Instruction Text
             Positioned(
               bottom: isMobile ? 30 : 40,
               left: padding,
@@ -240,7 +240,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
               ),
             ),
 
-            // ✨ Flash Button (Show on tablet/landscape)
+            // Flash Button (Show on tablet/landscape)
             if (!isMobile || MediaQuery.of(context).orientation == Orientation.landscape)
               Positioned(
                 top: isMobile ? 90 : 100,
@@ -265,7 +265,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     );
   }
 
-  // ✨ Responsive Corner Accent
+  // Corner Accent
   Widget _buildCornerAccent(bool isTop, bool isLeft, bool isMobile) {
     final size = isMobile ? 22.0 : 30.0;
     final width = isMobile ? 3.0 : 4.0;
@@ -296,7 +296,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     );
   }
 
-  // ✨ Responsive Scanning Line Animation
+  // Scanning Line Animation
   Widget _buildScanningLine(double frameSize) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
@@ -334,7 +334,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     );
   }
 
-  // 🔹 Responsive Result View
+  // Result View
   Widget _buildResultView(BuildContext context) {
     final isMobile = _ScannerResponsive.isMobile(context);
     final padding = _ScannerResponsive.getPadding(context);
@@ -346,7 +346,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
         children: [
           SizedBox(height: isMobile ? 30 : 40),
 
-          // ✨ Animated Success Icon (Responsive Size)
+          // Animated Success Icon
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0, end: 1),
             duration: const Duration(milliseconds: 500),
@@ -381,7 +381,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
 
           const SizedBox(height: 24),
 
-          // ✨ Title (Responsive Font)
+          // Title
           Text(
             _isUrl ? 'URL Detected' : 'Content Scanned',
             style: TextStyle(
@@ -407,7 +407,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
 
           SizedBox(height: isMobile ? 24 : 32),
 
-          // ✨ Scanned Content Card (Glassmorphism - Responsive)
+          // Scanned Content Card
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(isMobile ? 16 : 20),
@@ -468,7 +468,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
 
           SizedBox(height: isMobile ? 28 : 36),
 
-          // ✨ Action Buttons (Responsive Layout)
+          // Action Buttons
           Row(
             children: [
               Expanded(
@@ -496,7 +496,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
 
           const SizedBox(height: 20),
 
-          // ✨ Scan Again Button (Responsive)
+          // Scan Again Button
           TextButton.icon(
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -532,7 +532,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     );
   }
 
-  // ✨ Responsive Modern Action Button
+  // Modern Action Button
   Widget _buildModernActionButton(
       BuildContext context, {
         required String label,
@@ -581,7 +581,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     );
   }
 
-  // 🔹 URL Validation
+  // URL Validation
   bool _isValidUrl(String value) {
     return value.startsWith('http://') ||
         value.startsWith('https://') ||
@@ -591,7 +591,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
         RegExp(r'^[a-z]+://').hasMatch(value);
   }
 
-  // 🔹 Copy to Clipboard
+  // Copy to Clipboard
   Future<void> _copyToClipboard() async {
     if (_scannedValue != null) {
       await Clipboard.setData(ClipboardData(text: _scannedValue!));
@@ -604,7 +604,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     }
   }
 
-  // 🔹 Open URL
+  // Open URL
   Future<void> _openUrl() async {
     if (_scannedValue == null) return;
     try {
@@ -620,7 +620,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     }
   }
 
-  // 🔹 Show Error
+  // Show Error
   void _showError(String message) {
     if (!mounted) return;
     HapticFeedback.lightImpact();
@@ -629,7 +629,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     );
   }
 
-  // ✨ Responsive Modern SnackBar
+  // Modern SnackBar
   SnackBar _buildModernSnackBar(String message, Color bgColor, IconData icon, BuildContext context) {
     final isMobile = _ScannerResponsive.isMobile(context);
     return SnackBar(
@@ -664,7 +664,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
   }
 }
 
-// ✨ Custom Painter for Scanner Overlay
+// Custom Painter for Scanner Overlay
 class ScannerOverlayPainter extends CustomPainter {
   final Size cutoutSize;
   final Color overlayColor;
