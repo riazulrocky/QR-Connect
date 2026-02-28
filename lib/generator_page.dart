@@ -69,7 +69,7 @@ class _GeneratorPageState extends State<GeneratorPage>
           }
           _qrData = url;
         } else {
-          _qrData = 'https://flutter.dev';
+          _qrData = '';
         }
       } else {
         _qrData = _textController.text.isEmpty
@@ -191,18 +191,6 @@ class _GeneratorPageState extends State<GeneratorPage>
             keyboardType: TextInputType.url,
             onChanged: (_) => _generateQR(),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.info_outline_rounded,
-                  size: 14, color: Colors.teal[300]),
-              const SizedBox(width: 6),
-              Text(
-                'https:// will be added automatically',
-                style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-              ),
-            ],
-          ),
         ],
       )
           : _buildModernTextField(
@@ -210,7 +198,7 @@ class _GeneratorPageState extends State<GeneratorPage>
         controller: _textController,
         label: 'Enter Text',
         hint: 'Type anything here...',
-        icon: Icons.text_fields_rounded,
+        icon: null,
         keyboardType: TextInputType.multiline,
         maxLines: 4,
         alignLabelWithHint: true,
@@ -224,7 +212,7 @@ class _GeneratorPageState extends State<GeneratorPage>
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
+    IconData? icon,
     TextInputType? keyboardType,
     int? maxLines = 1,
     bool alignLabelWithHint = false,
@@ -239,9 +227,11 @@ class _GeneratorPageState extends State<GeneratorPage>
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-        labelStyle: TextStyle(color: Colors.grey[300], fontSize: 14),
-        prefixIcon: Icon(icon, color: Colors.teal[300], size: 20),
+        hintStyle: const TextStyle(color: Colors.white, fontSize: 14),
+        labelStyle: const TextStyle(color: Colors.white, fontSize: 14),
+        prefixIcon: icon != null
+            ? Icon(icon, color: Colors.white, size: 20)
+            : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
@@ -332,7 +322,6 @@ class _GeneratorPageState extends State<GeneratorPage>
 
                   const SizedBox(height: 30),
 
-                  // ✅ FIX #1: QrImageView - use named parameter `data`
                   FadeTransition(
                     opacity: _qrFadeAnimation,
                     child: Container(
@@ -354,7 +343,7 @@ class _GeneratorPageState extends State<GeneratorPage>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           QrImageView(
-                            semanticsLabel: _qrData, // ✅ FIXED: named parameter
+                            semanticsLabel: _qrData,
                             version: QrVersions.auto,
                             size: 200,
                             backgroundColor: Colors.white,
@@ -366,27 +355,8 @@ class _GeneratorPageState extends State<GeneratorPage>
                             dataModuleStyle: const QrDataModuleStyle(
                               color: Colors.black87,
                               dataModuleShape: QrDataModuleShape.circle,
-                            ), data: '',
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Text(
-                              _qrData.length > 40
-                                  ? '${_qrData.substring(0, 40)}...'
-                                  : _qrData,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w500,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+                            data: _qrData.isEmpty ? ' ' : _qrData,
                           ),
                         ],
                       ),
@@ -421,49 +391,7 @@ class _GeneratorPageState extends State<GeneratorPage>
                     ],
                   ),
 
-                  const SizedBox(height: 20),
-
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.white.withOpacity(0.25)),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.teal.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            _selectedType == 'URL'
-                                ? Icons.open_in_new_rounded
-                                : Icons.text_fields_rounded,
-                            color: Colors.teal[200],
-                            size: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            _selectedType == 'URL'
-                                ? 'Scanning this QR will open the link in browser'
-                                : 'Scanning this QR will display the text content',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.95),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              height: 1.3,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // ✅ CHANGED: Removed the info box Container with "Scanning this QR..." text
 
                   const SizedBox(height: 15),
                 ],
@@ -499,10 +427,9 @@ class _GeneratorPageState extends State<GeneratorPage>
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               margin: const EdgeInsets.symmetric(horizontal: 2),
-              // ✅ FIX #2: Remove `const` when using Colors.grey[]
               decoration: BoxDecoration(
                 gradient: isSelected
-                    ? LinearGradient(  // ❌ removed `const` here
+                    ? LinearGradient(
                   colors: [Colors.white, Colors.grey[100]!],
                 )
                     : null,
