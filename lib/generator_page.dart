@@ -30,7 +30,6 @@ class _GeneratorPageState extends State<GeneratorPage>
   String _qrData = '';
   final GlobalKey _qrKey = GlobalKey();
 
-  // ✅ Animation variables
   late AnimationController _qrAnimationController;
   late Animation<double> _qrFadeAnimation;
 
@@ -177,7 +176,7 @@ class _GeneratorPageState extends State<GeneratorPage>
     );
   }
 
-  Widget _buildInputFields() {
+  Widget _buildInputFields(double screenWidth) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       transitionBuilder: (child, animation) {
@@ -216,16 +215,15 @@ class _GeneratorPageState extends State<GeneratorPage>
         alignLabelWithHint: true,
         onChanged: (_) => _generateQR(),
       )
-          : _buildWiFiInputFields(),
+          : _buildWiFiInputFields(screenWidth),
     );
   }
 
-  Widget _buildWiFiInputFields() {
+  Widget _buildWiFiInputFields(double screenWidth) {
     return Column(
       key: const ValueKey('wifi-input'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // SSID Field
         _buildModernTextField(
           controller: _wifiSSIDController,
           label: 'Network Name (SSID)',
@@ -235,8 +233,6 @@ class _GeneratorPageState extends State<GeneratorPage>
           onChanged: (_) => _generateQR(),
         ),
         const SizedBox(height: 12),
-
-        // Password Field
         _buildModernTextField(
           controller: _wifiPasswordController,
           label: 'Password',
@@ -247,8 +243,6 @@ class _GeneratorPageState extends State<GeneratorPage>
           obscureText: true,
         ),
         const SizedBox(height: 12),
-
-        // Encryption Type Dropdown
         Row(
           children: [
             Icon(Icons.security_rounded, color: Colors.white, size: 20),
@@ -298,8 +292,6 @@ class _GeneratorPageState extends State<GeneratorPage>
           ],
         ),
         const SizedBox(height: 12),
-
-        // Hidden Network Toggle
         Row(
           children: [
             Icon(Icons.visibility_off_rounded, color: Colors.white, size: 20),
@@ -372,14 +364,24 @@ class _GeneratorPageState extends State<GeneratorPage>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenWidth < 360;
+    final qrSize = screenWidth > 400 ? 220.0 : (isSmallScreen ? 160.0 : 200.0);
+    final padding = isSmallScreen ? 12.0 : 20.0;
+    final containerPadding = isSmallScreen ? 16.0 : 24.0;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
 
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Generate QR Code',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: isSmallScreen ? 18 : 20,
+          ),
         ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
@@ -413,15 +415,15 @@ class _GeneratorPageState extends State<GeneratorPage>
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(padding),
               child: Column(
                 children: [
-                  const SizedBox(height: 10),
-                  _buildModernChipSelector(),
-                  const SizedBox(height: 25),
+                  SizedBox(height: isSmallScreen ? 6 : 10),
+                  _buildModernChipSelector(isSmallScreen),
+                  SizedBox(height: isSmallScreen ? 16 : 25),
 
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(padding),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -434,16 +436,16 @@ class _GeneratorPageState extends State<GeneratorPage>
                         ),
                       ],
                     ),
-                    child: _buildInputFields(),
+                    child: _buildInputFields(screenWidth),
                   ),
 
-                  const SizedBox(height: 30),
+                  SizedBox(height: isSmallScreen ? 20 : 30),
 
                   FadeTransition(
                     opacity: _qrFadeAnimation,
                     child: Container(
                       key: _qrKey,
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.all(containerPadding),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
@@ -462,7 +464,7 @@ class _GeneratorPageState extends State<GeneratorPage>
                           QrImageView(
                             semanticsLabel: _qrData,
                             version: QrVersions.auto,
-                            size: 200,
+                            size: qrSize,
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black,
                             eyeStyle: const QrEyeStyle(
@@ -480,7 +482,7 @@ class _GeneratorPageState extends State<GeneratorPage>
                     ),
                   ),
 
-                  const SizedBox(height: 25),
+                  SizedBox(height: isSmallScreen ? 20 : 25),
 
                   Row(
                     children: [
@@ -492,9 +494,10 @@ class _GeneratorPageState extends State<GeneratorPage>
                             colors: [Color(0xFF4b6cb7), Color(0xFF182848)],
                           ),
                           onTap: _copyToClipboard,
+                          isSmallScreen: isSmallScreen,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: isSmallScreen ? 8 : 12),
                       Expanded(
                         child: _buildGradientButton(
                           label: 'Save',
@@ -503,12 +506,13 @@ class _GeneratorPageState extends State<GeneratorPage>
                             colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
                           ),
                           onTap: _saveQRCode,
+                          isSmallScreen: isSmallScreen,
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 15),
+                  SizedBox(height: 15),
                 ],
               ),
             ),
@@ -518,7 +522,7 @@ class _GeneratorPageState extends State<GeneratorPage>
     );
   }
 
-  Widget _buildModernChipSelector() {
+  Widget _buildModernChipSelector(bool isSmallScreen) {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -540,7 +544,10 @@ class _GeneratorPageState extends State<GeneratorPage>
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 14 : 20,
+                vertical: isSmallScreen ? 8 : 10,
+              ),
               margin: const EdgeInsets.symmetric(horizontal: 2),
               decoration: BoxDecoration(
                 gradient: isSelected
@@ -564,7 +571,7 @@ class _GeneratorPageState extends State<GeneratorPage>
                 type,
                 style: TextStyle(
                   color: isSelected ? const Color(0xFF11998e) : Colors.white,
-                  fontSize: 14,
+                  fontSize: isSmallScreen ? 12 : 14,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 ),
               ),
@@ -580,6 +587,7 @@ class _GeneratorPageState extends State<GeneratorPage>
     required IconData icon,
     required LinearGradient gradient,
     required VoidCallback onTap,
+    bool isSmallScreen = false,
   }) {
     return Material(
       color: Colors.transparent,
@@ -588,7 +596,7 @@ class _GeneratorPageState extends State<GeneratorPage>
         borderRadius: BorderRadius.circular(16),
         splashColor: Colors.white.withOpacity(0.2),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
+          padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 12 : 15),
           decoration: BoxDecoration(
             gradient: gradient,
             borderRadius: BorderRadius.circular(16),
@@ -603,13 +611,13 @@ class _GeneratorPageState extends State<GeneratorPage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: Colors.white, size: 19),
-              const SizedBox(width: 7),
+              Icon(icon, color: Colors.white, size: isSmallScreen ? 16 : 19),
+              SizedBox(width: isSmallScreen ? 4 : 7),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 14,
+                  fontSize: isSmallScreen ? 12 : 14,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.3,
                 ),
