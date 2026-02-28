@@ -9,7 +9,7 @@ void main() {
   ));
 }
 
-// ✨ Responsive Helper Class
+// Responsive Helper Class
 class _Responsive {
   static double getWidth(BuildContext context) =>
       MediaQuery.of(context).size.width;
@@ -40,12 +40,11 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ FIX: Declare isMobile FIRST before using it
     final isMobile = _Responsive.isMobile(context);
     final padding = _Responsive.getPadding(context);
     final cardPadding = isMobile ? 20.0 : 24.0;
 
-    // 🎨 Modern Color Scheme (Same as original)
+    // Color Scheme
     const primaryGradient = LinearGradient(
       colors: [Color(0xFF667eea), Color(0xFF764ba2)],
       begin: Alignment.topLeft,
@@ -53,7 +52,7 @@ class HomePage extends StatelessWidget {
     );
 
     return Scaffold(
-      // ✨ Beautiful Gradient Background (Same)
+      // Gradient Background
       body: Container(
         decoration: const BoxDecoration(gradient: primaryGradient),
         child: SafeArea(
@@ -68,12 +67,12 @@ class HomePage extends StatelessWidget {
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
-                        // 📱 Modern AppBar (Responsive)
+                        // AppBar
                         _buildAppBar(context),
 
                         const Spacer(),
 
-                        // 🎯 Main Content Card (Responsive Width & Padding)
+                        // Main Content Card
                         Center(
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
@@ -98,7 +97,7 @@ class HomePage extends StatelessWidget {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Header Text (Responsive Font)
+                                  // Header Text
                                   Text(
                                     'Get Started',
                                     style: TextStyle(
@@ -117,7 +116,7 @@ class HomePage extends StatelessWidget {
                                   ),
                                   SizedBox(height: isMobile ? 24 : 30),
 
-                                  // 🔍 Scanner Button (Responsive)
+                                  // Scanner Button
                                   _buildModernButton(
                                     context,
                                     title: 'Scan QR Code',
@@ -133,9 +132,9 @@ class HomePage extends StatelessWidget {
                                     },
                                   ),
 
-                                  SizedBox(height: isMobile ? 12 : 16), // ✅ Now isMobile works!
+                                  SizedBox(height: isMobile ? 12 : 16),
 
-                                  // ➕ Generator Button (Responsive)
+                                  // Generator Button
                                   _buildModernButton(
                                     context,
                                     title: 'Generate QR Code',
@@ -160,7 +159,7 @@ class HomePage extends StatelessWidget {
 
                         const Spacer(),
 
-                        // 🦶 Footer (Responsive)
+                        // Footer
                         _buildFooter(context),
                       ],
                     ),
@@ -174,7 +173,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // 📱 Responsive AppBar
+  // AppBar
   Widget _buildAppBar(BuildContext context) {
     final isMobile = _Responsive.isMobile(context);
     final padding = _Responsive.getPadding(context);
@@ -210,7 +209,6 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // ✨ Responsive Modern Button Widget
   Widget _buildModernButton(
       BuildContext context, {
         required String title,
@@ -300,7 +298,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // 🦶 Responsive Footer
+  // Footer
   Widget _buildFooter(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: _Responsive.getPadding(context)),
